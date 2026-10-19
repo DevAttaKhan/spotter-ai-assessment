@@ -1,0 +1,31 @@
+{
+  "name": "route-check",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "typecheck": "tsc -b --pretty false",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@date-fns/tz": "^1.5.0",
+    "date-fns": "^4.1.0",
+    "maplibre-gl": "^6.15.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "react-if": "^4.1.6"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.3.0",
+    "@types/geojson": "^7946.0.16",
+    "@types/node": "^26.6.5",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "^6.0.0",
+    "tailwindcss": "^4.3.0",
+    "typescript": "^7.0.2",
+    "vite": "^8.0.0"
+  }
+}

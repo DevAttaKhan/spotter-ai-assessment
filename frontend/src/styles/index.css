@@ -1,0 +1,79 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Figtree", "Segoe UI", sans-serif;
+  --font-display: "Fraunces", Georgia, serif;
+  --color-canvas: #eef2f4;
+  --color-surface: #ffffff;
+  --color-ink: #14202b;
+  --color-muted: #5d6b78;
+  --color-line: #e1e7ec;
+  --color-accent: #0e6b5c;
+  --color-accent-dark: #0a5247;
+  --color-signal: #9a4e1c;
+  --color-signal-soft: #f8efe6;
+}
+
+body {
+  margin: 0;
+  background:
+    radial-gradient(900px 420px at 100% -20%, rgb(14 107 92 / 0.09), transparent 60%),
+    var(--color-canvas);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+.forecast-range {
+  height: 1.25rem;
+  width: 100%;
+  appearance: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+.forecast-range:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.forecast-range:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 3px;
+}
+
+.forecast-range::-webkit-slider-runnable-track {
+  height: 4px;
+  border-radius: 999px;
+  background: var(--color-line);
+}
+
+.forecast-range::-webkit-slider-thumb {
+  width: 16px;
+  height: 16px;
+  margin-top: -6px;
+  appearance: none;
+  border: 2px solid #fff;
+  border-radius: 999px;
+  background: var(--color-accent);
+  box-shadow: 0 1px 2px rgb(20 32 43 / 0.28);
+}
+
+.forecast-range::-moz-range-track {
+  height: 4px;
+  border: none;
+  border-radius: 999px;
+  background: var(--color-line);
+}
+
+.forecast-range::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  border: 2px solid #fff;
+  border-radius: 999px;
+  background: var(--color-accent);
+}

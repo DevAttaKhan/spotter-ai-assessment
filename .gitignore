@@ -1,0 +1,13 @@
+.env
+keys.txt
+.venv/
+backend/.venv/
+backend/.vendor/
+__pycache__/
+*.py[cod]
+backend/db.sqlite3
+backend/staticfiles/
+frontend/node_modules/
+frontend/dist/
+frontend/public/maplibre-gl-worker.mjs
+.DS_Store
