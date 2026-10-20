@@ -86,7 +86,7 @@ A trip is not stored. There is no login and no queue, because the work is one re
 
 `sample_miles` is 10, 25, or 50.
 
-The server geocodes both ends, asks Valhalla (through Stadia) for a truck route plus two alternates, and walks each route. Maneuver time is spread along the shape, so a checkpoint's ETA is the arrival time at that mile, not the departure time. Open-Meteo then returns wind (mph), rain plus showers (inches per hour), and snowfall (inches per hour) for that hour.
+The server geocodes both ends, asks Valhalla (through Stadia) for a truck route plus two alternates, and walks each route. Maneuver time is spread along the shape, so a checkpoint's ETA is the arrival time at that mile, not the departure time. Open-Meteo then returns wind (mph), rain plus showers (inches per hour), and snowfall (inches per hour) for that hour. If that free service is busy, the same hours come from MET Norway instead, and the origin timezone comes from a second lookup.
 
 Load weight is only used in the risk rules. The router gets a normal tractor-trailer size, not the cargo weight.
 

@@ -4,6 +4,7 @@ from datetime import datetime, timedelta, timezone
 
 import requests
 
+from planner.services.metno import MetError, fetch_series as fetch_met_series
 from planner.services.risk import SCORES, classify
 
 logger = logging.getLogger(__name__)
@@ -19,7 +20,7 @@ class WeatherError(Exception):
 
 def _busy_message(reason, status):
     text = (reason or "").lower()
-    if status in BUSY_STATUSES or "overload" in text or "too many" in text:
+    if status in BUSY_STATUSES or "overload" in text:
         return "The weather service is busy. Try again in a moment."
     if reason:
         return reason
@@ -66,20 +67,45 @@ def _get_open_meteo(params, timeout=30):
 
 
 def origin_clock(lat, lon):
-    """Timezone name and UTC offset at the origin, from Open-Meteo."""
-    body = _get_open_meteo(
-        {
-            "latitude": lat,
-            "longitude": lon,
-            "current": "temperature_2m",
-            "timezone": "auto",
-            "forecast_days": 1,
-        },
-        timeout=20,
-    )
+    """Timezone name and UTC offset at the origin."""
+    try:
+        body = _get_open_meteo(
+            {
+                "latitude": lat,
+                "longitude": lon,
+                "current": "temperature_2m",
+                "timezone": "auto",
+                "forecast_days": 1,
+            },
+            timeout=20,
+        )
+    except WeatherError as exc:
+        logger.warning("Open-Meteo timezone failed (%s). Using the backup clock.", exc)
+        return _timezone_from_backup(lat, lon)
     if "timezone" not in body or "utc_offset_seconds" not in body:
-        raise WeatherError("Could not read the timezone at the origin.")
+        return _timezone_from_backup(lat, lon)
     return body["timezone"], int(body["utc_offset_seconds"])
+
+
+def _timezone_from_backup(lat, lon):
+    try:
+        response = requests.get(
+            "https://timeapi.io/api/TimeZone/coordinate",
+            params={"latitude": lat, "longitude": lon},
+            headers={"User-Agent": "route-check/1.0"},
+            timeout=15,
+        )
+    except requests.RequestException as exc:
+        logger.warning("Backup timezone request failed: %s", exc)
+        raise WeatherError("Could not read the timezone at the origin.") from exc
+    if response.status_code != 200:
+        raise WeatherError("Could not read the timezone at the origin.")
+    body = response.json()
+    name = body.get("timeZone")
+    offset = (body.get("currentUtcOffset") or {}).get("seconds")
+    if not name or offset is None:
+        raise WeatherError("Could not read the timezone at the origin.")
+    return name, int(offset)
 
 
 def hour_key(moment):
@@ -117,7 +143,19 @@ def fetch_series(points, forecast_days):
     """Hourly wind, rain, and snow for each point. Order matches `points`."""
     if not points:
         return []
+    try:
+        return _fetch_open_meteo(points, forecast_days)
+    except WeatherError as exc:
+        logger.warning("Open-Meteo forecast failed (%s). Using MET Norway.", exc)
+        try:
+            return fetch_met_series(points)
+        except MetError as backup:
+            raise WeatherError(
+                "The weather service is busy, and the backup did not answer either."
+            ) from backup
 
+
+def _fetch_open_meteo(points, forecast_days):
     series = [None] * len(points)
     for start in range(0, len(points), CHUNK_SIZE):
         chunk = points[start : start + CHUNK_SIZE]
